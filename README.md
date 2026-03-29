@@ -5,7 +5,7 @@ A production-ready Docker setup for Mautic 7.0.1 with support for custom plugins
 ## 🚀 Features
 
 - **Mautic 7.0.1** (or build from your own fork)
-- **PHP 8.4** with optimized configuration
+- **PHP 8.5** with optimized configuration
 - **RabbitMQ** for reliable message queuing
 - **Multi-role containers**: Web, Cron, and Worker services
 - **Coolify-ready** with proper environment variable handling

@@ -58,7 +58,7 @@ services:
         MAUTIC_VERSION: '${MAUTIC_VERSION:-7.0.1}'
         # Uncomment to build from your fork:
         # MAUTIC_REPO: 'https://github.com/proofoftom/mautic.git'
-        BASE_TAG: '8.4-apache-bookworm'
+        BASE_TAG: '8.5-apache-bookworm'
     image: '${MAUTIC_IMAGE:-mautic-custom:7.0.1}'
     restart: unless-stopped
     depends_on:
@@ -122,7 +122,7 @@ services:
       dockerfile: Dockerfile
       args:
         MAUTIC_VERSION: '${MAUTIC_VERSION:-7.0.1}'
-        BASE_TAG: '8.4-apache-bookworm'
+        BASE_TAG: '8.5-apache-bookworm'
     image: '${MAUTIC_IMAGE:-mautic-custom:7.0.1}'
     restart: unless-stopped
     depends_on:
@@ -161,7 +161,7 @@ services:
       dockerfile: Dockerfile
       args:
         MAUTIC_VERSION: '${MAUTIC_VERSION:-7.0.1}'
-        BASE_TAG: '8.4-apache-bookworm'
+        BASE_TAG: '8.5-apache-bookworm'
     image: '${MAUTIC_IMAGE:-mautic-custom:7.0.1}'
     restart: unless-stopped
     depends_on:

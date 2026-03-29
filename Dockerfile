@@ -9,7 +9,7 @@
 #                --build-arg MAUTIC_REPO=https://github.com/proofoftom/mautic.git \
 #                -t your-registry/mautic-custom:7.0.1 .
 
-ARG BASE_TAG=8.4-apache-bookworm
+ARG BASE_TAG=8.5-apache-bookworm
 FROM php:${BASE_TAG}
 
 # Build arguments
@@ -64,7 +64,7 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 # Install GD extension
 RUN docker-php-ext-install -j$(nproc) gd
 
-# Install IMAP extension via PECL (not bundled in PHP 8.4)
+# Install IMAP extension via PECL (not bundled in PHP 8.5)
 RUN pecl install imap \
     && docker-php-ext-enable imap
 
