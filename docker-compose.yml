@@ -1,6 +1,6 @@
 # Mautic Custom Docker Compose for Coolify
 # 
-# This compose file builds and deploys a custom Mautic 7.0.0-rc2 image
+# This compose file builds and deploys a custom Mautic 7.0.1 image
 # with support for custom plugins and themes.
 #
 # For Coolify Service Stack deployment:
@@ -55,11 +55,11 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        MAUTIC_VERSION: '${MAUTIC_VERSION:-7.0.0-rc2}'
+        MAUTIC_VERSION: '${MAUTIC_VERSION:-7.0.1}'
         # Uncomment to build from your fork:
         # MAUTIC_REPO: 'https://github.com/proofoftom/mautic.git'
         BASE_TAG: '8.4-apache-bookworm'
-    image: '${MAUTIC_IMAGE:-mautic-custom:7.0.0-rc2}'
+    image: '${MAUTIC_IMAGE:-mautic-custom:7.0.1}'
     restart: unless-stopped
     depends_on:
       mysql:
@@ -121,9 +121,9 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        MAUTIC_VERSION: '${MAUTIC_VERSION:-7.0.0-rc2}'
+        MAUTIC_VERSION: '${MAUTIC_VERSION:-7.0.1}'
         BASE_TAG: '8.4-apache-bookworm'
-    image: '${MAUTIC_IMAGE:-mautic-custom:7.0.0-rc2}'
+    image: '${MAUTIC_IMAGE:-mautic-custom:7.0.1}'
     restart: unless-stopped
     depends_on:
       mautic_web:
@@ -160,9 +160,9 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        MAUTIC_VERSION: '${MAUTIC_VERSION:-7.0.0-rc2}'
+        MAUTIC_VERSION: '${MAUTIC_VERSION:-7.0.1}'
         BASE_TAG: '8.4-apache-bookworm'
-    image: '${MAUTIC_IMAGE:-mautic-custom:7.0.0-rc2}'
+    image: '${MAUTIC_IMAGE:-mautic-custom:7.0.1}'
     restart: unless-stopped
     depends_on:
       mautic_web:

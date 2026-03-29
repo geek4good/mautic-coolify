@@ -1,10 +1,10 @@
 # Custom Mautic Docker Deployment
 
-A production-ready Docker setup for Mautic 7.0.0-rc2 with support for custom plugins, themes, and patches.
+A production-ready Docker setup for Mautic 7.0.1 with support for custom plugins, themes, and patches.
 
 ## 🚀 Features
 
-- **Mautic 7.0.0-rc2** (or build from your own fork)
+- **Mautic 7.0.1** (or build from your own fork)
 - **PHP 8.4** with optimized configuration
 - **RabbitMQ** for reliable message queuing
 - **Multi-role containers**: Web, Cron, and Worker services
@@ -85,7 +85,7 @@ docker compose logs -f mautic_web
 
 3. **Configure Environment Variables** in Coolify UI:
    ```
-   MAUTIC_VERSION=7.0.0-rc2
+   MAUTIC_VERSION=7.0.1
    MAUTIC_RUN_MIGRATIONS=true
    MAUTIC_LOAD_TEST_DATA=false
    RABBITMQ_PASSWORD=your-secure-password
@@ -104,7 +104,7 @@ docker compose logs -f mautic_web
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `MAUTIC_VERSION` | `7.0.0-rc2` | Mautic version to build |
+| `MAUTIC_VERSION` | `7.0.1` | Mautic version to build |
 | `MAUTIC_RUN_MIGRATIONS` | `true` | Run DB migrations on start |
 | `MAUTIC_LOAD_TEST_DATA` | `false` | Load demo data |
 | `MAUTIC_EMAIL_WORKERS` | `2` | Email queue workers |
@@ -118,9 +118,9 @@ To build from your forked Mautic repository (e.g., `proofoftom/mautic`):
 ```bash
 # Build with custom repository
 docker build \
-  --build-arg MAUTIC_VERSION=dev-7.0.0-rc2 \
+  --build-arg MAUTIC_VERSION=dev-7.0.1 \
   --build-arg MAUTIC_REPO=https://github.com/proofoftom/mautic.git \
-  -t mautic-custom:7.0.0-rc2 .
+  -t mautic-custom:7.0.1 .
 ```
 
 Or in docker-compose.yml, uncomment:
