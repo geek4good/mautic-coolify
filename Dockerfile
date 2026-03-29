@@ -9,8 +9,8 @@
 #                --build-arg MAUTIC_REPO=https://github.com/proofoftom/mautic.git \
 #                -t your-registry/mautic-custom:7.0.1 .
 
-ARG BASE_TAG=8.5-apache-bookworm
-FROM php:${BASE_TAG}
+ARG BASE_TAG=1-php8.4-bookworm
+FROM dunglas/frankenphp:${BASE_TAG}
 
 # Build arguments
 ARG MAUTIC_VERSION=7.0.1
@@ -25,8 +25,7 @@ LABEL maintainer="Your Name <your@email.com>" \
 ENV MAUTIC_VERSION=${MAUTIC_VERSION} \
     COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_HOME=/tmp/composer \
-    MAUTIC_ROOT=/var/www/html \
-    APACHE_DOCUMENT_ROOT=/var/www/html
+    MAUTIC_ROOT=/var/www/html
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -51,10 +50,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     librabbitmq-dev \
     # For PDF generation
     libfontconfig1 \
-    # For composer dependencies (Node.js/npm)
-    nodejs \
-    npm \
+    ca-certificates \
+    gnupg \
     # Cleanup
+    && rm -rf /var/lib/apt/lists/* \
+    # Install Node.js 22.x via NodeSource (Mautic requires Node >= 20)
+    && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure and install PHP extensions
@@ -64,7 +66,7 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 # Install GD extension
 RUN docker-php-ext-install -j$(nproc) gd
 
-# Install IMAP extension via PECL (not bundled in PHP 8.5)
+# Install IMAP extension via PECL (not bundled in FrankenPHP's PHP build)
 RUN pecl install imap \
     && docker-php-ext-enable imap
 
@@ -113,23 +115,8 @@ RUN { \
     echo 'realpath_cache_ttl = 600'; \
 } > /usr/local/etc/php/conf.d/mautic.ini
 
-# Configure Apache
-RUN a2enmod rewrite headers setenvif
-
-# Configure Apache to trust proxy headers (fix redirect loops behind Traefik/reverse proxy)
-RUN { \
-    echo '<IfModule mod_setenvif.c>'; \
-    echo '    # Trust X-Forwarded-Proto from reverse proxy'; \
-    echo '    SetEnvIf X-Forwarded-Proto "https" HTTPS=on'; \
-    echo '    SetEnvIf X-Forwarded-Proto "https" HTTP_X_FORWARDED_PROTO=https'; \
-    echo '</IfModule>'; \
-} > /etc/apache2/conf-available/reverse-proxy.conf \
-    && a2enconf reverse-proxy
-
-# Configure Apache DocumentRoot for Mautic using sed approach (recommended by official PHP Docker images)
-# This replaces the default DocumentRoot with /var/www/html in all Apache config files
-RUN sed -ri -e 's!/var/www/html!/var/www/html!g' /etc/apache2/sites-available/*.conf \
-    && sed -ri -e 's!/var/www/!/var/www/html/!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+# Copy Caddyfile for FrankenPHP/Caddy configuration
+COPY Caddyfile /etc/caddy/Caddyfile
 
 # Create www-data user home directory
 RUN mkdir -p /var/www/.composer && chown -R www-data:www-data /var/www
@@ -149,7 +136,10 @@ RUN git config --global --add safe.directory /var/www/html \
     && rm -rf .git
 
 # Install Mautic dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist \
+    && composer require symfony/amqp-messenger --update-no-dev --optimize-autoloader --no-interaction \
+    && php bin/console cache:clear --no-warmup \
+    && php bin/console cache:warmup
 
 # Copy custom plugins (add your plugins to the plugins/ directory)
 COPY plugins/ ${MAUTIC_ROOT}/plugins/
@@ -199,4 +189,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
     CMD curl -f http://localhost/s/login || curl -f http://localhost/ || exit 1
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["apache2-foreground"]
+CMD ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]

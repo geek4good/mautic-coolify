@@ -58,7 +58,7 @@ services:
         MAUTIC_VERSION: '${MAUTIC_VERSION:-7.0.1}'
         # Uncomment to build from your fork:
         # MAUTIC_REPO: 'https://github.com/proofoftom/mautic.git'
-        BASE_TAG: '8.5-apache-bookworm'
+        BASE_TAG: '1-php8.4-bookworm'
     image: '${MAUTIC_IMAGE:-mautic-custom:7.0.1}'
     restart: unless-stopped
     depends_on:
@@ -72,7 +72,7 @@ services:
       - 'mautic-media-files:/var/www/html/media/files:z'
       - 'mautic-media-images:/var/www/html/media/images:z'
       - 'mautic-cache:/var/www/html/var/cache:z'
-      - 'mautic-sessions:/var/lib/php/sessions:z'
+
     environment:
       # Container role
       DOCKER_MAUTIC_ROLE: 'mautic_web'
@@ -103,6 +103,8 @@ services:
       PHP_INI_VALUE_POST_MAX_FILESIZE: '${PHP_POST_MAX_FILESIZE:-64M}'
       PHP_INI_VALUE_MAX_EXECUTION_TIME: '${PHP_MAX_EXECUTION_TIME:-300}'
       PHP_INI_VALUE_DATE_TIMEZONE: '${PHP_TIMEZONE:-UTC}'
+    ports:
+      - '8080:80'
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost/s/login']
       interval: 30s
@@ -122,7 +124,7 @@ services:
       dockerfile: Dockerfile
       args:
         MAUTIC_VERSION: '${MAUTIC_VERSION:-7.0.1}'
-        BASE_TAG: '8.5-apache-bookworm'
+        BASE_TAG: '1-php8.4-bookworm'
     image: '${MAUTIC_IMAGE:-mautic-custom:7.0.1}'
     restart: unless-stopped
     depends_on:
@@ -161,7 +163,7 @@ services:
       dockerfile: Dockerfile
       args:
         MAUTIC_VERSION: '${MAUTIC_VERSION:-7.0.1}'
-        BASE_TAG: '8.5-apache-bookworm'
+        BASE_TAG: '1-php8.4-bookworm'
     image: '${MAUTIC_IMAGE:-mautic-custom:7.0.1}'
     restart: unless-stopped
     depends_on:
@@ -212,8 +214,6 @@ volumes:
   mautic-media-images:
     driver: local
   mautic-cache:
-    driver: local
-  mautic-sessions:
     driver: local
 
 # Docker network

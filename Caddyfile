@@ -1,0 +1,17 @@
+{
+	# Disable automatic HTTPS since we're behind a reverse proxy (Coolify/Traefik)
+	auto_https off
+	http_port 80
+	frankenphp
+	servers {
+		trusted_proxies static private_ranges
+	}
+}
+
+:80 {
+	root * /var/www/html
+	encode gzip
+	php_server {
+		index index.php
+	}
+}

@@ -117,7 +117,7 @@ run_migrations() {
             }
         " 2>/dev/null; then
             log_info "Fresh install detected - running Mautic installation..."
-            gosu www-data php "${MAUTIC_ROOT}/bin/console" mautic:install \
+            php "${MAUTIC_ROOT}/bin/console" mautic:install \
                 "${MAUTIC_URL:-http://localhost}" \
                 --force \
                 --no-interaction \
@@ -139,7 +139,7 @@ run_migrations() {
             log_info "Default admin credentials: admin / Mautic1234!"
         else
             log_info "Existing installation detected - running database migrations..."
-            gosu www-data php "${MAUTIC_ROOT}/bin/console" doctrine:migrations:migrate --no-interaction || {
+            php "${MAUTIC_ROOT}/bin/console" doctrine:migrations:migrate --no-interaction || {
                 log_warn "Migrations failed or already applied"
             }
         fi
@@ -150,7 +150,7 @@ run_migrations() {
 load_test_data() {
     if [ "${DOCKER_MAUTIC_LOAD_TEST_DATA:-false}" = "true" ]; then
         log_info "Loading test data..."
-        gosu www-data php "${MAUTIC_ROOT}/bin/console" mautic:install:data --force || {
+        php "${MAUTIC_ROOT}/bin/console" mautic:install:data --force || {
             log_warn "Test data loading failed"
         }
     fi
@@ -159,8 +159,8 @@ load_test_data() {
 # Clear and warm up cache
 warm_cache() {
     log_info "Warming up cache..."
-    gosu www-data php "${MAUTIC_ROOT}/bin/console" cache:clear --no-warmup
-    gosu www-data php "${MAUTIC_ROOT}/bin/console" cache:warmup
+    php "${MAUTIC_ROOT}/bin/console" cache:clear --no-warmup
+    php "${MAUTIC_ROOT}/bin/console" cache:warmup
     log_info "Checking Mautic error log..."
     if [ -f "${MAUTIC_ROOT}/var/logs/prod.log" ]; then
         tail -n 20 "${MAUTIC_ROOT}/var/logs/prod.log" 2>/dev/null || true
@@ -240,19 +240,21 @@ start_workers() {
 main() {
     log_info "Starting Mautic container in role: ${DOCKER_MAUTIC_ROLE}"
     
-    # Fix permissions
-    chown -R www-data:www-data "${MAUTIC_ROOT}/var"
-    chown -R www-data:www-data "${MAUTIC_ROOT}/media"
-    chown -R www-data:www-data "${MAUTIC_ROOT}/config"
+    # Ensure writable directories exist and have open permissions
+    # FrankenPHP runs PHP as root, but cron/worker use gosu www-data
+    mkdir -p "${MAUTIC_ROOT}/var/cache" "${MAUTIC_ROOT}/var/logs" "${MAUTIC_ROOT}/var/tmp"
+    chmod -R 777 "${MAUTIC_ROOT}/var"
+    chmod -R 777 "${MAUTIC_ROOT}/media"
+    chmod -R 777 "${MAUTIC_ROOT}/config"
     
     case "${DOCKER_MAUTIC_ROLE}" in
         mautic_web)
             wait_for_db
-            generate_config
             run_migrations
+            generate_config
             load_test_data
             warm_cache
-            log_info "Starting Apache..."
+            log_info "Starting FrankenPHP..."
             exec "$@"
             ;;
         mautic_cron)
