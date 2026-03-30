@@ -1,6 +1,7 @@
 # Custom Mautic Docker Deployment
 
-A production-ready Docker setup for Mautic 7.0.1 with support for custom plugins, themes, and patches.
+A production-ready Docker setup for Mautic 7.0.1 with support for custom plugins, themes, and patches.  
+Based on https://github.com/proofoftom/mautic-coolify
 
 ## 🚀 Features
 
